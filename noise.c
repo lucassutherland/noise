@@ -1,47 +1,35 @@
 #include <stdio.h>
 #include <math.h>
 
-#define ROWS 20
-#define COLS 35
+#include "noise.h"
 
-double hypotenuse(int x, int y);
+#define SQRT_2 1.41421356
 
-int main(void) {
-    double arr[ROWS][COLS];
+static double hypotenuse(int x, int y);
 
-    int x_offset = 0;
-    int y_offset = 0;
-    int octave = 10;
+void add_octave (int rows, int cols, 
+                double arr[rows][cols],
+                int x_offset, int y_offset, 
+                int wavelength, double amplitude) {
 
-    for(int row = 0; row < ROWS; row++) {
-        for(int col = 0; col < COLS; col++) {
-            arr[row][col] = 0.0;
-        }
-    }
+    for(int row = 0; row < rows; row++) {
+        for(int col = 0; col < cols; col++) {
 
-    for(int row = 0; row < ROWS; row++) {
-        for(int col = 0; col < COLS; col++) {
-
-            // finding distance to nearest zero location ((row + y_offset) % octave == 0)
-            int x = (row + y_offset) % octave;
-            if (x > octave / 2) x = octave - x;
-            int y = (col + x_offset) % octave;
-            if (y > octave / 2) y = octave - y;
+            // finding distance to nearest zero location ((row + y_offset) % wavelength == 0)
+            int x = (row + y_offset) % wavelength;
+            if (x > wavelength / 2) x = wavelength - x;
+            int y = (col + x_offset) % wavelength;
+            if (y > wavelength / 2) y = wavelength - y;
 
             arr[row][col] = hypotenuse(x, y);
-            arr[row][col] /= octave / sqrt(2); // the maximum distance
-        }
-    }
 
-
-    for(int row = 0; row < ROWS; row++) {
-        for(int col = 0; col < COLS; col++) {
-            printf("%2.0lf ", arr[row][col] * 100);
+            // the maximum distance
+            arr[row][col] /= wavelength / SQRT_2; 
         }
-        printf("\n");
     }
 }
 
-double hypotenuse(int x, int y) {
+// pythagoras / distance formula
+static double hypotenuse(int x, int y) {
     return sqrt(x*x + y*y);
 }
